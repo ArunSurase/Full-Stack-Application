@@ -1,6 +1,8 @@
 package com.example.backendapplication.controller;
 
 import com.example.backendapplication.model.User;
+import com.example.backendapplication.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -11,34 +13,37 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin("http://localhost:3000")
 public class UserController {
-    List<User> users = new ArrayList<>();
+    @Autowired
+    UserService userService;
     @GetMapping("/users")
     public List<User> getAllUser(){
-        return users;
+        return userService.getAllUsers();
     }
     @GetMapping("/user/{id}")
     public User getUser(@PathVariable Long id){
-        return users.stream().filter(user -> user.getId().equals(id)).findFirst().orElseThrow();
+        return userService.getById(id);
+//                users.stream().filter(user -> user.getId().equals(id)).findFirst().orElseThrow();
     }
     @PostMapping("/user")
     public User addUser(@RequestBody User newUser){
-        users.add(newUser);
-        return newUser;
+        return userService.saveUser(newUser);
     }
     @PutMapping("/user/{id}")
     public User updateUser(@RequestBody User updatedUser, @PathVariable Long id){
-        users.stream().filter(user -> user.getId().equals(id))
-                .findFirst().map(user -> {user.setId(updatedUser.getId());
-                    user.setName(updatedUser.getName());
-                    user.setAddress(updatedUser.getAddress());
-                    user.setEmail(updatedUser.getEmail());
-                    return user;
-                }).orElseThrow();
-        return null;
+        return userService.updateUser(updatedUser,id);
+//        users.stream().filter(user -> user.getId().equals(id))
+//                .findFirst().map(user -> {user.setId(updatedUser.getId());
+//                    user.setName(updatedUser.getName());
+//                    user.setAddress(updatedUser.getAddress());
+//                    user.setEmail(updatedUser.getEmail());
+//                    return user;
+//                }).orElseThrow();
+//        return null;
     }
     @DeleteMapping("/user/{id}")
     public String deleteUser(@PathVariable Long id){
-        users = users.stream().filter(user -> !user.getId().equals(id)).collect(Collectors.toList());
-        return "user with user id "+id+" has been removed";
+        return userService.deleteUser(id);
+//        users = users.stream().filter(user -> !user.getId().equals(id)).collect(Collectors.toList());
+//        return "user with user id "+id+" has been removed";
     }
 }
